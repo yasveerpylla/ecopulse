@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en" class="dark h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sustainable Energy Consumption & Smart Home Optimization Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for analytics & telemetry -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0c101d',
+                            950: '#070a12',
+                            800: '#151d30'
+                        },
+                        eco: {
+                            500: '#10b981',
+                            400: '#34d399',
+                            600: '#059669'
+                        },
+                        cyan: {
+                            400: '#38bdf8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(18, 26, 43, 0.78);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(56, 189, 248, 0.12);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-card-hover:hover {
+            border-color: rgba(52, 211, 153, 0.4);
+            box-shadow: 0 10px 40px -10px rgba(16, 185, 129, 0.2);
+        }
+        .neon-glow-emerald {
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.35);
+        }
+        .neon-glow-cyan {
+            box-shadow: 0 0 25px -5px rgba(56, 189, 248, 0.35);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(52, 211, 153, 0.3);
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(52, 211, 153, 0.6);
+        }
+    </style>
+</head>
+<body class="h-full bg-dark-950 text-slate-100 overflow-hidden custom-scrollbar">
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- Desktop Sidebar Navigation -->
+        <aside id="sidebar" class="hidden md:flex flex-col w-72 bg-dark-900/95 backdrop-blur-xl border-r border-slate-800/80 z-30 transition-all duration-300">
+            <div class="flex items-center justify-between h-20 px-6 border-b border-slate-800/60">
+                <div class="flex items-center space-x-3">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-cyan-400 flex items-center justify-center text-dark-950 font-bold text-xl neon-glow-emerald">
+                        <i class="fa-solid fa-bolt-lightning"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">EcoPulse</span>
+                        <span class="block text-[10px] tracking-widest uppercase font-semibold text-emerald-400/80">Smart Energy OS</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- House Template Switcher & Builder -->
+            <div class="px-4 py-4 border-b border-slate-800/60">
+                <div class="flex justify-between items-center mb-1.5">
+                    <label class="text-[10px] font-bold uppercase tracking-wider text-slate-400">House Template</label>
+                    <button onclick="openHouseBuilderModal()" class="text-[10px] text-emerald-400 font-bold hover:underline">Configure</button>
+                </div>
+                <select id="house-template-select" onchange="switchHouseTemplate(this.value)" class="w-full bg-slate-900 border border-slate-700/80 text-xs font-semibold rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+                    <option value="2BHK">2 BHK Standard Villa</option>
+                    <option value="1BHK">1 BHK Studio Apartment</option>
+                    <option value="3BHK">3 BHK Executive House</option>
+                    <option value="4BHK">4 BHK Grand Residence</option>
+                    <option value="5BHK">5 BHK Luxury Estate</option>
+                    <option value="Custom">Custom Configuration</option>
+                </select>
+            </div>
+
+            <!-- Main Navigation Links -->
+            <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto custom-scrollbar">
+                <a href="#dashboard" onclick="switchNav('dashboard', event)" class="nav-link flex items-center px-4 py-3 text-sm font-semibold rounded-2xl bg-gradient-to-r from-emerald-500/20 to-teal-500/10 text-emerald-400 border border-emerald-500/30 shadow-lg shadow-emerald-500/10 transition-all">
+                    <i class="fa-solid fa-chart-pie w-7 text-emerald-400 text-base"></i> Dashboard
+                </a>
+                <a href="#power-tally" onclick="switchNav('power-tally', event)" class="nav-link flex items-center px-4 py-3 text-sm font-medium rounded-2xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
+                    <i class="fa-solid fa-scale-balanced w-7 text-cyan-400 text-base"></i> Utility Meter Tally
+                </a>
+                <a href="#rooms" onclick="switchNav('rooms', event)" class="nav-link flex items-center px-4 py-3 text-sm font-medium rounded-2xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
+                    <i class="fa-solid fa-house-chimney w-7 text-indigo-400 text-base"></i> Rooms & Floorplan
+                </a>
+                <a href="#switchboxes" onclick="switchNav('switchboxes', event)" class="nav-link flex items-center px-4 py-3 text-sm font-medium rounded-2xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
+                    <i class="fa-solid fa-toggle-on w-7 text-amber-400 text-base"></i> Switch Boxes
+                </a>
+                <a href="#devices" onclick="switchNav('devices', event)" class="nav-link flex items-center px-4 py-3 text-sm font-medium rounded-2xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
+                    <i class="fa-solid fa-microchip w-7 text-teal-400 text-base"></i> Connected Devices
+                </a>
+                <a href="#analytics" onclick="switchNav('analytics', event)" class="nav-link flex items-center px-4 py-3 text-sm font-medium rounded-2xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
+                    <i class="fa-solid fa-chart-line w-7 text-blue-400 text-base"></i> Energy Analytics
+                </a>
+                <a href="#modes" onclick="switchNav('modes', event)" class="nav-link flex items-center px-4 py-3 text-sm font-medium rounded-2xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles w-7 text-purple-400 text-base"></i> Smart Modes & Scenes
+                </a>
+                <a href="#copilot" onclick="switchNav('copilot', event)" class="nav-link flex items-center px-4 py-3 text-sm font-medium rounded-2xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
+                    <i class="fa-solid fa-robot w-7 text-pink-400 text-base"></i> Energy Copilot AI
+                </a>
+                <a href="#safety" onclick="switchNav('safety', event)" class="nav-link flex items-center px-4 py-3 text-sm font-medium rounded-2xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
+                    <i class="fa-solid fa-shield-halved w-7 text-rose-400 text-base"></i> Safety & Overload
+                </a>
+                <a href="#sustainability" onclick="switchNav('sustainability', event)" class="nav-link flex items-center px-4 py-3 text-sm font-medium rounded-2xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
+                    <i class="fa-solid fa-seedling w-7 text-emerald-400 text-base"></i> Sustainability & Goals
+                </a>
+                <a href="#reports" onclick="switchNav('reports', event)" class="nav-link flex items-center px-4 py-3 text-sm font-medium rounded-2xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
+                    <i class="fa-solid fa-file-arrow-down w-7 text-amber-300 text-base"></i> Reports & Audit Log
+                </a>
+            </nav>
+
+            <!-- Sidebar Footer Quick Banner -->
+            <div class="p-4 m-4 rounded-3xl bg-gradient-to-br from-emerald-500/10 via-cyan-500/5 to-transparent border border-emerald-500/20 text-center">
+                <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold mb-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>IoT Mesh Active</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mb-3">Coverage: <strong class="text-white" id="sidebar-coverage">95.8%</strong></p>
+                <button onclick="runDemoScenario('SummerEvening')" class="w-full py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 text-dark-950 font-bold rounded-xl text-xs shadow-lg transition-all">Run Demo Scenario</button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            
+            <!-- Header Bar -->
+            <header class="h-20 bg-dark-900/90 backdrop-blur-xl border-b border-slate-800/80 flex items-center justify-between px-6 z-20">
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleMobileSidebar()" class="md:hidden p-2.5 rounded-xl bg-slate-800 text-slate-300">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    <div>
+                        <h1 id="top-title" class="text-xl font-extrabold text-white tracking-wide">Dashboard & Power Flow</h1>
+                        <p class="text-xs text-slate-400">UTILITY METER → ROOMS → SWITCH BOXES → CHANNELS → DEVICES • <span id="live-pulse-text" class="text-emerald-400 font-semibold">Live • Updated 2 seconds ago</span></p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Smart Mode Quick Selector -->
+                    <div class="hidden sm:flex items-center space-x-2 bg-slate-900 border border-slate-800 px-3 py-2 rounded-2xl">
+                        <span class="text-xs font-bold text-slate-400">Mode:</span>
+                        <select onchange="applySmartMode(this.value)" id="header-mode-select" class="bg-transparent text-xs font-semibold text-emerald-400 focus:outline-none cursor-pointer">
+                            <option value="Normal">⚡ Normal Operation</option>
+                            <option value="Eco">🌱 Eco Mode</option>
+                            <option value="Sleep">🌙 Sleep Mode</option>
+                            <option value="Away">🚪 Away Mode</option>
+                            <option value="PeakAvoidance">⏱️ Peak Avoidance</option>
+                        </select>
+                    </div>
+
+                    <!-- Live Indicator Badge -->
+                    <div class="flex items-center space-x-2 px-3 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="hidden sm:inline">Telemetry Synced</span>
+                    </div>
+
+                    <!-- Notification Bell -->
+                    <button onclick="switchNav('safety', event)" class="relative p-3 rounded-2xl bg-slate-800/80 border border-slate-700/50 text-slate-300 hover:bg-slate-700 transition-all">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="alert-count-badge" class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-rose-500"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Scrollable Viewport -->
+            <main id="main-view" class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-8 custom-scrollbar bg-dark-950 pb-28 md:pb-8">
+                <!-- Dynamically Rendered Views -->
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-dark-900/95 backdrop-blur-xl border-t border-slate-800 flex justify-around items-center h-16 z-40 px-2">
+        <button onclick="switchNav('dashboard', event)" class="flex flex-col items-center text-emerald-400 text-[10px] font-bold space-y-1">
+            <i class="fa-solid fa-chart-pie text-lg"></i>
+            <span>Home</span>
+        </button>
+        <button onclick="switchNav('rooms', event)" class="flex flex-col items-center text-slate-400 text-[10px] font-medium space-y-1">
+            <i class="fa-solid fa-house-chimney text-lg"></i>
+            <span>Rooms</span>
+        </button>
+        <button onclick="switchNav('switchboxes', event)" class="flex flex-col items-center text-slate-400 text-[10px] font-medium space-y-1">
+            <i class="fa-solid fa-toggle-on text-lg"></i>
+            <span>Boxes</span>
+        </button>
+        <button onclick="switchNav('devices', event)" class="flex flex-col items-center text-slate-400 text-[10px] font-medium space-y-1">
+            <i class="fa-solid fa-microchip text-lg"></i>
+            <span>Devices</span>
+        </button>
+        <button onclick="switchNav('analytics', event)" class="flex flex-col items-center text-slate-400 text-[10px] font-medium space-y-1">
+            <i class="fa-solid fa-chart-line text-lg"></i>
+            <span>Analytics</span>
+        </button>
+    </div>
+
+    <!-- Global Interactive Modal -->
+    <div id="global-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-dark-950/80 backdrop-blur-md hidden">
+        <div id="modal-content" class="glass-card p-8 rounded-3xl max-w-2xl w-full m-4 shadow-2xl relative border border-emerald-500/30 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <!-- Modal Body -->
+        </div>
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast" class="fixed bottom-20 md:bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-900 border border-emerald-500/40 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm neon-glow-emerald">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-msg">Action completed successfully</span>
+    </div>
+
+    <script>
+        let appState = {
+            currentNav: 'dashboard',
+            houseTemplate: '2BHK',
+            tariffRatePerKWh: 8.5, // INR per kWh
+            currency: '₹',
+            utilityMeter: {
+                meterNumber: 'MTR-982410-HYD',
+                provider: 'Northern Power Distribution (Simulated)',
+                meterType: 'Smart Bi-Directional Digital',
+                currentReadingKwh: 1482.4,
+                previousReadingKwh: 1295.2,
+                totalConsumedCycleKwh: 187.2,
+                billingCycle: '01 Oct 2026 - 31 Oct 2026',
+                lastSynced: '2 mins ago',
+                source: 'Simulated API Integration'
+            },
+            rooms: [
+                { id: 'room-living', name: 'Living Room', type: 'Living Room', floor: 'Ground', area: '280 sq.ft', icon: 'fa-couch', color: 'from-emerald-500 to-teal-500' },
+                { id: 'room-kitchen', name: 'Kitchen', type: 'Kitchen', floor: 'Ground', area: '180 sq.ft', icon: 'fa-utensils', color: 'from-amber-500 to-orange-500' },
+                { id: 'room-bed1', name: 'Bedroom 1', type: 'Master Bedroom', floor: 'First', area: '220 sq.ft', icon: 'fa-bed', color: 'from-blue-500 to-indigo-500' },
+                { id: 'room-bed2', name: 'Bedroom 2', type: 'Guest Bedroom', floor: 'First', area: '190 sq.ft', icon: 'fa-bed', color: 'from-cyan-500 to-blue-600' },
+                { id: 'room-bath', name: 'Bathroom', type: 'Bathroom', floor: 'First', area: '80 sq.ft', icon: 'fa-bath', color: 'from-teal-500 to-cyan-600' },
+                { id: 'room-balcony', name: 'Balcony', type: 'Balcony', floor: 'First', area: '100 sq.ft', icon: 'fa-seedling', color: 'from-green-500 to-emerald-600' }
+            ],
+            switchBoxes: [
+                {
+                    id: 'B1-SB01',
+                    name: 'Bedroom AC & Main Switch Box',
+                    roomId: 'room-bed1',
+                    maxLoadKw: 3.50,
+                    voltage: 230,
+                    phase: 'Single Phase',
+                    status: 'Online',
+                    temperature: 38,
+                    channels: [
+                        { id: 'CH-B1-1', name: 'Channel 1 (AC)', deviceId: 'dev-b1-ac' },
+                        { id: 'CH-B1-2', name: 'Channel 2 (Fan)', deviceId: 'dev-b1-fan' },
+                        { id: 'CH-B1-3', name: 'Channel 3 (Light)', deviceId: 'dev-b1-light' },
+                        { id: 'CH-B1-4', name: 'Channel 4 (TV)', deviceId: 'dev-b1-tv' }
+                    ]
+                },
+                {
+                    id: 'LR-SB01',
+                    name: 'Living Room Distribution Box',
+                    roomId: 'room-living',
+                    maxLoadKw: 4.50,
+                    voltage: 230,
+                    phase: 'Single Phase',
+                    status: 'Online',
+                    temperature: 36,
+                    channels: [
+                        { id: 'CH-LR-1', name: 'Channel 1 (Living AC)', deviceId: 'dev-lr-ac' },
+                        { id: 'CH-LR-2', name: 'Channel 2 (Entertainment)', deviceId: 'dev-lr-tv' },
+                        { id: 'CH-LR-3', name: 'Channel 3 (Ambient Lights)', deviceId: 'dev-lr-light' }
+                    ]
+                },
+                {
+                    id: 'KIT-SB01',
+                    name: 'Kitchen Appliance Panel',
+                    roomId: 'room-kitchen',
+                    maxLoadKw: 5.00,
+                    voltage: 230,
+                    phase: 'Single Phase',
+                    status: 'Online',
+                    temperature: 39,
+                    channels: [
+                        { id: 'CH-KIT-1', name: 'Channel 1 (Refrigerator)', deviceId: 'dev-kit-ref' },
+                        { id: 'CH-KIT-2', name: 'Channel 2 (Induction)', deviceId: 'dev-kit-ind' },
+                        { id: 'CH-KIT-3', name: 'Channel 3 (Microwave)', deviceId: 'dev-kit-mw' }
+                    ]
+                },
+                {
+                    id: 'BAT-SB01',
+                    name: 'Bathroom Heater Box',
+                    roomId: 'room-bath',
+                    maxLoadKw: 3.00,
+                    voltage: 230,
+                    phase: 'Single Phase',
+                    status: 'Online',
+                    temperature: 35,
+                    channels: [
+                        { id: 'CH-BAT-1', name: 'Channel 1 (Geyser)', deviceId: 'dev-bath-geyser' }
+                    ]
+                }
+            ],
+            devices: [
+                // Bedroom 1
+                { id: 'dev-b1-ac', name: 'AC (Inverter)', category: 'Climate', brand: 'Daikin', model: 'FTKZ50', roomId: 'room-bed1', switchBoxId: 'B1-SB01', channelId: 'CH-B1-1', ratedPowerKw: 1.82, state: 'ON', mode: 'Cool', temp: 24, todayKwh: 7.24, monthKwh: 146.3, measurement: 'Measured' },
+                { id: 'dev-b1-fan', name: 'Ceiling Fan', category: 'Climate', brand: 'Atomberg', model: 'Efficio', roomId: 'room-bed1', switchBoxId: 'B1-SB01', channelId: 'CH-B1-2', ratedPowerKw: 0.32, state: 'ON', speed: 3, todayKwh: 1.18, monthKwh: 24.1, measurement: 'Measured' },
+                { id: 'dev-b1-light', name: 'Smart Bulb', category: 'Lighting', brand: 'Philips', model: 'Hue 10W', roomId: 'room-bed1', switchBoxId: 'B1-SB01', channelId: 'CH-B1-3', ratedPowerKw: 0.04, state: 'ON', brightness: 80, todayKwh: 0.22, monthKwh: 6.2, measurement: 'Measured' },
+                { id: 'dev-b1-tv', name: 'Smart TV', category: 'Entertainment', brand: 'Samsung', model: 'Crystal 4K', roomId: 'room-bed1', switchBoxId: 'B1-SB01', channelId: 'CH-B1-4', ratedPowerKw: 0.08, state: 'STANDBY', todayKwh: 0.15, monthKwh: 4.5, measurement: 'Measured' },
+
+                // Living Room
+                { id: 'dev-lr-ac', name: 'Living Room AC', category: 'Climate', brand: 'LG', model: 'AI Dual', roomId: 'room-living', switchBoxId: 'LR-SB01', channelId: 'CH-LR-1', ratedPowerKw: 2.05, state: 'ON', mode: 'Cool', temp: 24, todayKwh: 8.10, monthKwh: 162.0, measurement: 'Measured' },
+                { id: 'dev-lr-tv', name: 'Soundbar & TV', category: 'Entertainment', brand: 'Sony', model: 'Bravia OLED', roomId: 'room-living', switchBoxId: 'LR-SB01', channelId: 'CH-LR-2', ratedPowerKw: 0.15, state: 'ON', todayKwh: 0.85, monthKwh: 22.0, measurement: 'Measured' },
+                { id: 'dev-lr-light', name: 'LED Strip Lights', category: 'Lighting', brand: 'Wipro', model: 'RGB Strip', roomId: 'room-living', switchBoxId: 'LR-SB01', channelId: 'CH-LR-3', ratedPowerKw: 0.05, state: 'ON', todayKwh: 0.30, monthKwh: 9.0, measurement: 'Measured' },
+
+                // Kitchen
+                { id: 'dev-kit-ref', name: 'Refrigerator', category: 'Kitchen', brand: 'Whirlpool', model: 'IntelliFrost', roomId: 'room-kitchen', switchBoxId: 'KIT-SB01', channelId: 'CH-KIT-1', ratedPowerKw: 0.18, state: 'ON', todayKwh: 2.15, monthKwh: 62.4, measurement: 'Measured' },
+                { id: 'dev-kit-ind', name: 'Induction Cooktop', category: 'Kitchen', brand: 'Prestige', model: 'PIC 20', roomId: 'room-kitchen', switchBoxId: 'KIT-SB01', channelId: 'CH-KIT-2', ratedPowerKw: 2.20, state: 'OFF', todayKwh: 1.80, monthKwh: 45.0, measurement: 'Measured' },
+                { id: 'dev-kit-mw', name: 'Microwave Oven', category: 'Kitchen', brand: 'IFB', model: '25TRC', roomId: 'room-kitchen', switchBoxId: 'KIT-SB01', channelId: 'CH-KIT-3', ratedPowerKw: 1.40, state: 'OFF', todayKwh: 0.40, monthKwh: 12.0, measurement: 'Measured' },
+
+                // Bathroom
+                { id: 'dev-bath-geyser', name: 'Water Heater (Geyser)', category: 'Bathroom', brand: 'AO Smith', model: 'HSE-SDS', roomId: 'room-bath', switchBoxId: 'BAT-SB01', channelId: 'CH-BAT-1', ratedPowerKw: 2.50, state: 'OFF', targetTemp: 55, todayKwh: 2.50, monthKwh: 58.0, measurement: 'Measured' }
+            ],
+            alerts: [
+                { id: 'alt-1', title: 'High Power Consumption in Master Bedroom', category: 'Anomaly', time: '12 mins ago', desc: 'Bedroom 1 AC consumption is 38% higher than historical weekly average.', severity: 'warning', room: 'Bedroom 1' },
+                { id: 'alt-2', title: 'Standby Vampire Power Detected', category: 'Standby', time: '1 hour ago', desc: 'Bedroom 1 TV is drawing 80W in standby mode.', severity: 'info', room: 'Bedroom 1' }
+            ],
+            goals: [
+                { id: 'g-1', title: 'Monthly Bill Target (< ₹2,500)', target: 290, current: 220, unit: 'kWh' },
+                { id: 'g-2', title: 'Peak Demand Limit (< 5.0 kW)', target: 5.0, current: 4.25, unit: 'kW Peak' }
+            ],
+            activeSmartMode: 'Normal'
+        };
+
+        function switchNav(navId, event) {
+            appState.currentNav = navId;
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.className = "nav-link flex items-center px-4 py-3 text-sm font-medium rounded-2xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all";
+            });
+            if (event && event.currentTarget) {
+                event.currentTarget.className = "nav-link flex items-center px-4 py-3 text-sm font-semibold rounded-2xl bg-gradient-to-r from-emerald-500/20 to-teal-500/10 text-emerald-400 border border-emerald-500/30 shadow-lg shadow-emerald-500/10 transition-all";
+            }
+            renderCurrentView();
+        }
+
+        function renderCurrentView() {
+            const container = document.getElementById('main-view');
+            const titles = {
+                'dashboard': 'Dashboard & Power Flow',
+                'power-tally': 'Utility Meter Tally & Reconciliation',
+                'rooms': 'Rooms & Smart House Floorplan',
+                'switchboxes': 'Smart Switch Boxes Management',
+                'devices': 'Connected Devices Catalog',
+                'analytics': 'Advanced Energy Analytics',
+                'modes': 'Smart Modes & Automations',
+                'copilot': 'Energy Copilot AI Assistant',
+                'safety': 'Electrical Safety & Overload Center',
+                'sustainability': 'Sustainability & Reduction Goals',
+                'reports': 'Reports, Audit Logs & Exports'
+            };
+            document.getElementById('top-title').innerText = titles[appState.currentNav] || 'Dashboard';
+
+            if (appState.currentNav === 'dashboard') container.innerHTML = renderDashboardView();
+            else if (appState.currentNav === 'power-tally') container.innerHTML = renderPowerTallyView();
+            else if (appState.currentNav === 'rooms') container.innerHTML = renderRoomsView();
+            else if (appState.currentNav === 'switchboxes') container.innerHTML = renderSwitchBoxesView();
+            else if (appState.currentNav === 'devices') container.innerHTML = renderDevicesView();
+            else if (appState.currentNav === 'analytics') container.innerHTML = renderAnalyticsView();
+            else if (appState.currentNav === 'modes') container.innerHTML = renderModesView();
+            else if (appState.currentNav === 'copilot') container.innerHTML = renderCopilotView();
+            else if (appState.currentNav === 'safety') container.innerHTML = renderSafetyView();
+            else if (appState.currentNav === 'sustainability') container.innerHTML = renderSustainabilityView();
+            else if (appState.currentNav === 'reports') container.innerHTML = renderReportsView();
+
+            if (['dashboard', 'analytics', 'power-tally', 'safety'].includes(appState.currentNav)) {
+                initCharts();
+            }
+        }
+
+        function getComputedMetrics() {
+            const activeDevices = appState.devices.filter(d => d.state === 'ON' || d.state === 'STANDBY');
+            const currentHouseKw = activeDevices.reduce((sum, d) => sum + (d.state === 'ON' ? d.ratedPowerKw : 0.05), 0);
+            const todayKwh = appState.devices.reduce((sum, d) => sum + d.todayKwh, 0);
+            const monthKwh = appState.devices.reduce((sum, d) => sum + d.monthKwh, 0);
+            const estBill = Math.round(monthKwh * appState.tariffRatePerKWh);
+            const utilityMeterKwh = appState.utilityMeter.totalConsumedCycleKwh;
+            const monitoredKwh = monthKwh;
+            const differenceKwh = Math.abs(utilityMeterKwh - monitoredKwh).toFixed(2);
+            const coveragePercent = Math.min(100, Math.round((monitoredKwh / utilityMeterKwh) * 100));
+
+            return {
+                currentHouseKw: currentHouseKw.toFixed(2),
+                todayKwh: todayKwh.toFixed(1),
+                monthKwh: monthKwh.toFixed(1),
+                estBill,
+                utilityMeterKwh,
+                monitoredKwh: monitoredKwh.toFixed(1),
+                differenceKwh,
+                coveragePercent,
+                activeCount: activeDevices.filter(d => d.state === 'ON').length,
+                totalRooms: appState.rooms.length,
+                totalSwitchBoxes: appState.switchBoxes.length,
+                totalDevices: appState.devices.length
+            };
+        }
+
+        function renderDashboardView() {
+            const m = getComputedMetrics();
+
+            return `
+                <div class="space-y-8">
+                    <!-- Top KPI Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                        <div class="glass-card p-5 rounded-3xl relative overflow-hidden">
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold neon-glow-emerald">
+                                    <i class="fa-solid fa-bolt"></i>
+                                </div>
+                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300">Live</span>
+                            </div>
+                            <h3 class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Current House Load</h3>
+                            <div class="text-2xl font-extrabold text-white mt-1">${m.currentHouseKw} <span class="text-sm font-semibold text-slate-400">kW</span></div>
+                        </div>
+
+                        <div class="glass-card p-5 rounded-3xl relative overflow-hidden">
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-sun"></i>
+                                </div>
+                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300">Today</span>
+                            </div>
+                            <h3 class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Today's Energy</h3>
+                            <div class="text-2xl font-extrabold text-white mt-1">${m.todayKwh} <span class="text-sm font-semibold text-slate-400">kWh</span></div>
+                        </div>
+
+                        <div class="glass-card p-5 rounded-3xl relative overflow-hidden">
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold neon-glow-cyan">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                                </div>
+                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300">Cycle</span>
+                            </div>
+                            <h3 class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Est. Monthly Bill</h3>
+                            <div class="text-2xl font-extrabold text-white mt-1">${appState.currency}${m.estBill.toLocaleString()}</div>
+                        </div>
+
+                        <div class="glass-card p-5 rounded-3xl relative overflow-hidden">
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-scale-balanced"></i>
+                                </div>
+                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300">Tally</span>
+                            </div>
+                            <h3 class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Meter Coverage</h3>
+                            <div class="text-2xl font-extrabold text-white mt-1">${m.coveragePercent}%</div>
+                        </div>
+
+                        <div class="glass-card p-5 rounded-3xl relative overflow-hidden">
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                </div>
+                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300">Peak</span>
+                            </div>
+                            <h3 class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Peak Demand</h3>
+                            <div class="text-2xl font-extrabold text-white mt-1">4.25 <span class="text-sm font-semibold text-slate-400">kW</span></div>
+                        </div>
+
+                        <div class="glass-card p-5 rounded-3xl relative overflow-hidden">
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-toggle-on"></i>
+                                </div>
+                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300">Active</span>
+                            </div>
+                            <h3 class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Active Devices</h3>
+                            <div class="text-2xl font-extrabold text-white mt-1">${m.activeCount} <span class="text-sm font-semibold text-slate-400">/ ${m.totalDevices}</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Power Flow Chain Banner -->
+                    <div class="glass-card p-6 lg:p-8 rounded-3xl bg-gradient-to-r from-dark-900 via-slate-900 to-dark-900 border border-emerald-500/30">
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+                            <div>
+                                <h3 class="text-lg font-extrabold text-white flex items-center space-x-2">
+                                    <i class="fa-solid fa-network-wired text-emerald-400"></i>
+                                    <span>Main Electrical Supply & Switch Box Hierarchy</span>
+                                </h3>
+                                <p class="text-xs text-slate-400">Interactive live flow from Government Utility Meter down to individual switch channels.</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">Mode: ${appState.activeSmartMode}</span>
+                                <button onclick="switchNav('power-tally', event)" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl text-white">View Tally Details →</button>
+                            </div>
+                        </div>
+
+                        <!-- Flow Visual Chain -->
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-center">
+                            <div onclick="switchNav('power-tally', event)" class="p-4 rounded-2xl bg-dark-900 border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all">
+                                <span class="text-[10px] text-slate-400 uppercase font-bold block mb-1">1. Utility Meter</span>
+                                <strong class="text-cyan-400 text-sm block">${appState.utilityMeter.totalConsumedCycleKwh} kWh</strong>
+                                <span class="text-[10px] text-slate-500">Government Reference</span>
+                            </div>
+                            <div class="flex items-center justify-center text-emerald-400 hidden md:flex"><i class="fa-solid fa-arrow-right"></i></div>
+                            <div onclick="switchNav('rooms', event)" class="p-4 rounded-2xl bg-dark-900 border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all">
+                                <span class="text-[10px] text-slate-400 uppercase font-bold block mb-1">2. Rooms (${m.totalRooms})</span>
+                                <strong class="text-white text-sm block">${m.currentHouseKw} kW Load</strong>
+                                <span class="text-[10px] text-slate-500">Interactive Floorplan</span>
+                            </div>
+                            <div class="flex items-center justify-center text-emerald-400 hidden md:flex"><i class="fa-solid fa-arrow-right"></i></div>
+                            <div onclick="switchNav('switchboxes', event)" class="p-4 rounded-2xl bg-dark-900 border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all">
+                                <span class="text-[10px] text-slate-400 uppercase font-bold block mb-1">3. Switch Boxes (${m.totalSwitchBoxes})</span>
+                                <strong class="text-amber-400 text-sm block">${m.activeCount} Channels ON</strong>
+                                <span class="text-[10px] text-slate-500">Relay Control & Limits</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts & Power Tally Summary -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 glass-card p-6 lg:p-8 rounded-3xl shadow-xl">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <h3 class="text-lg font-bold text-white tracking-wide">Household Power Curve (kW)</h3>
+                                    <p class="text-xs text-slate-400">Real-time telemetry stream over the past 24 hours</p>
+                                </div>
+                                <button onclick="switchNav('analytics', event)" class="text-xs font-bold text-emerald-400 hover:underline">Full Analytics →</button>
+                            </div>
+                            <div class="h-72 w-full">
+                                <canvas id="dashboardPowerChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6 lg:p-8 rounded-3xl shadow-xl flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-white tracking-wide mb-1">Utility Meter Reconciliation</h3>
+                                <p class="text-xs text-slate-400 mb-4">Government Meter vs Monitored Switch Boxes</p>
+                                
+                                <div class="space-y-3 bg-slate-900/60 p-4 rounded-2xl border border-slate-800 text-xs">
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-400">Utility Meter:</span>
+                                        <strong class="text-cyan-400">${appState.utilityMeter.totalConsumedCycleKwh} kWh</strong>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-400">Monitored Load:</span>
+                                        <strong class="text-emerald-400">${m.monitoredKwh} kWh</strong>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-400">Unaccounted Diff:</span>
+                                        <strong class="text-amber-400">${m.differenceKwh} kWh</strong>
+                                    </div>
+                                    <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-2">
+                                        <div class="bg-gradient-to-r from-emerald-500 to-cyan-400 h-full rounded-full" style="width: ${m.coveragePercent}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="switchNav('power-tally', event)" class="mt-4 w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 text-white font-bold rounded-2xl text-xs shadow-lg transition-all">Inspect Power Tally</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPowerTallyView() {
+            const m = getComputedMetrics();
+
+            return `
+                <div class="space-y-6 max-w-5xl mx-auto">
+                    <div class="glass-card p-8 rounded-3xl bg-gradient-to-r from-dark-900 via-slate-900 to-dark-900 border border-emerald-500/30">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                            <div>
+                                <span class="text-[10px] font-bold px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Authoritative Reference</span>
+                                <h2 class="text-2xl font-extrabold text-white mt-2">Government / Utility Power Meter Tally</h2>
+                                <p class="text-xs text-slate-400">Continuous reconciliation between utility meter readings and monitored switch box consumption.</p>
+                            </div>
+                            <button onclick="openMeterUpdateModal()" class="px-5 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 text-white font-bold rounded-2xl text-xs shadow-lg transition-all">Update Utility Meter Reading</button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+                                <span class="text-slate-400 text-xs block mb-1">Utility Meter Number</span>
+                                <strong class="text-white text-sm">${appState.utilityMeter.meterNumber}</strong>
+                            </div>
+                            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+                                <span class="text-slate-400 text-xs block mb-1">Billing Cycle</span>
+                                <strong class="text-white text-sm">${appState.utilityMeter.billingCycle}</strong>
+                            </div>
+                            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+                                <span class="text-slate-400 text-xs block mb-1">Utility Consumption</span>
+                                <strong class="text-cyan-400 text-lg">${appState.utilityMeter.totalConsumedCycleKwh} kWh</strong>
+                            </div>
+                            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+                                <span class="text-slate-400 text-xs block mb-1">Monitored Load</span>
+                                <strong class="text-emerald-400 text-lg">${m.monitoredKwh} kWh</strong>
+                            </div>
+                        </div>
+
+                        <!-- Reconciliation Formula & Unaccounted Load -->
+                        <div class="bg-dark-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+                            <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+                                <i class="fa-solid fa-calculator text-amber-400"></i>
+                                <span>Reconciliation Breakdown & Unmonitored Analysis</span>
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                                <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+                                    <span class="text-slate-400 block">Total Utility Reading</span>
+                                    <strong class="text-white text-base">${appState.utilityMeter.totalConsumedCycleKwh} kWh</strong>
+                                </div>
+                                <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+                                    <span class="text-slate-400 block">Monitored Switch Boxes</span>
+                                    <strong class="text-emerald-400 text-base">-${m.monitoredKwh} kWh</strong>
+                                </div>
+                                <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+                                    <span class="text-slate-400 block">Unaccounted / Unmonitored Difference</span>
+                                    <strong class="text-amber-400 text-base">${m.differenceKwh} kWh (${(100 - m.coveragePercent).toFixed(1)}%)</strong>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-400 leading-relaxed pt-2">
+                                Note: A minor unaccounted difference (${m.differenceKwh} kWh) is normal due to unmonitored hallway lighting, router standby, or meter synchronization latency. This is neutrally categorized as unmonitored load.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderRoomsView() {
+            return `
+                <div class="space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-white tracking-wide">Rooms & Smart House Floorplan</h2>
+                            <p class="text-xs text-slate-400">Interactive room hierarchy containing Smart Switch Boxes and connected channels.</p>
+                        </div>
+                        <button onclick="openAddRoomModal()" class="px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-dark-950 font-bold rounded-2xl text-xs shadow-lg transition-all flex items-center space-x-2 w-fit">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Add New Room</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${appState.rooms.map(room => {
+                            const roomDevices = appState.devices.filter(d => d.roomId === room.id);
+                            const roomSb = appState.switchBoxes.filter(s => s.roomId === room.id);
+                            const roomKw = roomDevices.reduce((sum, d) => sum + (d.state === 'ON' ? d.ratedPowerKw : 0), 0).toFixed(2);
+                            const roomKwh = roomDevices.reduce((sum, d) => sum + d.todayKwh, 0).toFixed(1);
+
+                            return `
+                                <div class="glass-card glass-card-hover p-6 rounded-3xl flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr ${room.color} flex items-center justify-center text-white text-xl shadow-md">
+                                                <i class="fa-solid ${room.icon}"></i>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <button onclick="openEditRoomModal('${room.id}')" class="p-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl text-xs"><i class="fa-solid fa-pen"></i></button>
+                                                <button onclick="deleteRoom('${room.id}')" class="p-2 bg-slate-800 text-rose-400 hover:text-rose-300 rounded-xl text-xs"><i class="fa-solid fa-trash"></i></button>
+                                            </div>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-white">${room.name}</h3>
+                                        <p class="text-xs text-slate-400 mb-6">${roomSb.length} Switch Box • ${roomDevices.length} Devices</p>
+
+                                        <div class="grid grid-cols-2 gap-3 mb-4 bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800 text-xs">
+                                            <div>
+                                                <span class="text-slate-400 block text-[10px]">Current Load</span>
+                                                <strong class="text-white text-sm">${roomKw} kW</strong>
+                                            </div>
+                                            <div>
+                                                <span class="text-slate-400 block text-[10px]">Today's Usage</span>
+                                                <strong class="text-cyan-400 text-sm">${roomKwh} kWh</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button onclick="openRoomDetail('${room.id}')" class="w-full py-2.5 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 font-bold text-xs rounded-xl">Inspect Room Details</button>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSwitchBoxesView() {
+            return `
+                <div class="space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-white tracking-wide">Smart Switch Boxes Management</h2>
+                            <p class="text-xs text-slate-400">Fully manageable switch box units with independent channels and max load protection.</p>
+                        </div>
+                        <button onclick="openAddSwitchBoxModal()" class="px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-dark-950 font-bold rounded-2xl text-xs shadow-lg transition-all flex items-center space-x-2 w-fit">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>+ Add Switch Box</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${appState.switchBoxes.map(sb => {
+                            const room = appState.rooms.find(r => r.id === sb.roomId) || { name: 'Unassigned' };
+                            const sbDevices = appState.devices.filter(d => d.switchBoxId === sb.id);
+                            const sbKw = sbDevices.reduce((sum, d) => sum + (d.state === 'ON' ? d.ratedPowerKw : 0), 0).toFixed(2);
+                            const loadPercent = Math.round((sbKw / sb.maxLoadKw) * 100);
+                            const isWarning = loadPercent > 80;
+
+                            return `
+                                <div class="glass-card glass-card-hover p-6 rounded-3xl flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex justify-between items-start mb-4">
+                                            <div>
+                                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300">${sb.id}</span>
+                                                <h3 class="text-base font-bold text-white mt-1">${sb.name}</h3>
+                                                <p class="text-xs text-slate-400">${room.name}</p>
+                                            </div>
+                                            <span class="px-3 py-1 rounded-full text-xs font-bold ${isWarning ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}">${sb.status}</span>
+                                        </div>
+
+                                        <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs mb-4">
+                                            <div class="flex justify-between"><span class="text-slate-400">Current Load:</span><strong class="text-white">${sbKw} kW</strong></div>
+                                            <div class="flex justify-between"><span class="text-slate-400">Max Limit:</span><strong class="text-slate-200">${sb.maxLoadKw} kW (${loadPercent}%)</strong></div>
+                                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-1">
+                                                <div class="bg-gradient-to-r from-emerald-500 to-amber-500 h-full rounded-full" style="width: ${loadPercent}%"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-1.5 mb-4">
+                                            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Channels (${sb.channels.length}):</span>
+                                            ${sb.channels.map(ch => {
+                                                const dev = appState.devices.find(d => d.id === ch.deviceId);
+                                                return `
+                                                    <div class="flex justify-between items-center text-xs px-3 py-2 rounded-xl bg-dark-900 border border-slate-800">
+                                                        <div class="flex items-center space-x-2">
+                                                            <span class="w-2 h-2 rounded-full ${dev && dev.state === 'ON' ? 'bg-emerald-400' : 'bg-slate-600'}"></span>
+                                                            <span class="text-white font-medium">${ch.name}</span>
+                                                        </div>
+                                                        <div class="flex items-center space-x-2">
+                                                            <span class="text-emerald-400 font-bold">${dev && dev.state === 'ON' ? dev.ratedPowerKw + ' kW' : 'OFF'}</span>
+                                                            ${dev ? `<button onclick="toggleDeviceState('${dev.id}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[10px] rounded text-white font-bold">${dev.state === 'ON' ? 'OFF' : 'ON'}</button>` : ''}
+                                                        </div>
+                                                    </div>
+                                                `;
+                                            }).join('')}
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between pt-4 border-t border-slate-800">
+                                        <button onclick="openSwitchBoxDetail('${sb.id}')" class="px-4 py-2 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 font-bold text-xs rounded-xl">Manage Channels</button>
+                                        <div class="flex space-x-2">
+                                            <button onclick="openEditSwitchBoxModal('${sb.id}')" class="p-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl text-xs"><i class="fa-solid fa-pen"></i></button>
+                                            <button onclick="deleteSwitchBox('${sb.id}')" class="p-2 bg-slate-800 text-rose-400 hover:text-rose-300 rounded-xl text-xs"><i class="fa-solid fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDevicesView() {
+            return `
+                <div class="space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-white tracking-wide">Connected Devices & Appliances</h2>
+                            <p class="text-xs text-slate-400">Independent appliance telemetry, power ratings, and remote controls assigned to switch channels.</p>
+                        </div>
+                        <button onclick="openAddDeviceModal()" class="px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-dark-950 font-bold rounded-2xl text-xs shadow-lg transition-all flex items-center space-x-2 w-fit">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>+ Add Device</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${appState.devices.map(device => {
+                            const room = appState.rooms.find(r => r.id === device.roomId) || { name: 'Unknown' };
+                            const sb = appState.switchBoxes.find(s => s.id === device.switchBoxId) || { name: 'Unknown' };
+                            const estCost = Math.round(device.monthKwh * appState.tariffRatePerKWh);
+
+                            return `
+                                <div class="glass-card glass-card-hover p-6 rounded-3xl flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div>
+                                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300">${device.category}</span>
+                                                <h3 class="text-base font-bold text-white mt-1">${device.name}</h3>
+                                                <p class="text-xs text-slate-400">${room.name} • ${sb.id}</p>
+                                            </div>
+                                            <button onclick="toggleDeviceState('${device.id}')" class="px-3 py-1 rounded-full text-xs font-bold ${device.state === 'ON' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'}">● ${device.state}</button>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-3 bg-slate-900/60 p-4 rounded-2xl border border-slate-800 text-xs mb-4">
+                                            <div>
+                                                <span class="text-slate-400">Rated Power:</span>
+                                                <strong class="text-white text-sm block">${device.state === 'ON' ? device.ratedPowerKw + ' kW' : '0.00 kW'}</strong>
+                                            </div>
+                                            <div>
+                                                <span class="text-slate-400">Today's Usage:</span>
+                                                <strong class="text-cyan-400 text-sm block">${device.todayKwh} kWh</strong>
+                                            </div>
+                                            <div>
+                                                <span class="text-slate-400">This Month:</span>
+                                                <strong class="text-white text-sm block">${device.monthKwh} kWh</strong>
+                                            </div>
+                                            <div>
+                                                <span class="text-slate-400">Est. Cost:</span>
+                                                <strong class="text-emerald-400 text-sm block">${appState.currency}${estCost}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between pt-4 border-t border-slate-800">
+                                        <button onclick="openDeviceDetail('${device.id}')" class="px-4 py-2 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 font-bold text-xs rounded-xl">Inspect Telemetry</button>
+                                        <button onclick="deleteDevice('${device.id}')" class="text-rose-400 hover:text-rose-300 text-xs font-semibold"><i class="fa-solid fa-trash"></i></button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAnalyticsView() {
+            return `
+                <div class="space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-white tracking-wide">Energy Analytics & Forecasting</h2>
+                        <p class="text-xs text-slate-400">Multi-dimensional consumption analysis across rooms, switch boxes, and utility meter.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="glass-card p-6 lg:p-8 rounded-3xl shadow-xl">
+                            <h3 class="text-lg font-bold text-white mb-4">Daily Household Consumption (kWh)</h3>
+                            <div class="h-64">
+                                <canvas id="analyticsDailyChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6 lg:p-8 rounded-3xl shadow-xl">
+                            <h3 class="text-lg font-bold text-white mb-4">Room Energy Share (%)</h3>
+                            <div class="h-64 flex justify-center">
+                                <canvas id="analyticsRoomChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderModesView() {
+            return `
+                <div class="space-y-6 max-w-4xl mx-auto">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-white tracking-wide">Smart Energy Modes & Automations</h2>
+                        <p class="text-xs text-slate-400">Instantly optimize your household with automated profiles like Eco Mode and Peak Avoidance.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="glass-card p-6 rounded-3xl flex flex-col justify-between border ${appState.activeSmartMode === 'Eco' ? 'border-emerald-500' : 'border-slate-800'}">
+                            <div>
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-4">
+                                    <i class="fa-solid fa-seedling"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-white">Eco Mode</h3>
+                                <p class="text-xs text-slate-400 mt-1 mb-6">Optimizes AC temperatures to 24°C, dims lighting, and curtails standby electronics.</p>
+                            </div>
+                            <button onclick="applySmartMode('Eco')" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-dark-950 font-bold text-xs rounded-xl shadow-lg transition-all">Activate Eco Mode</button>
+                        </div>
+
+                        <div class="glass-card p-6 rounded-3xl flex flex-col justify-between border ${appState.activeSmartMode === 'Sleep' ? 'border-indigo-500' : 'border-slate-800'}">
+                            <div>
+                                <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl mb-4">
+                                    <i class="fa-solid fa-moon"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-white">Sleep Mode</h3>
+                                <p class="text-xs text-slate-400 mt-1 mb-6">Turns off living room devices, sets bedroom AC to quiet sleep curve, turns off unnecessary lights.</p>
+                            </div>
+                            <button onclick="applySmartMode('Sleep')" class="w-full py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-xs rounded-xl shadow-lg transition-all">Activate Sleep Mode</button>
+                        </div>
+
+                        <div class="glass-card p-6 rounded-3xl flex flex-col justify-between border ${appState.activeSmartMode === 'Away' ? 'border-amber-500' : 'border-slate-800'}">
+                            <div>
+                                <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-4">
+                                    <i class="fa-solid fa-door-open"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-white">Away Mode</h3>
+                                <p class="text-xs text-slate-400 mt-1 mb-6">Shuts down all non-essential switch boxes while maintaining refrigerator power.</p>
+                            </div>
+                            <button onclick="applySmartMode('Away')" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-dark-950 font-bold text-xs rounded-xl shadow-lg transition-all">Activate Away Mode</button>
+                        </div>
+
+                        <div class="glass-card p-6 rounded-3xl flex flex-col justify-between border ${appState.activeSmartMode === 'Normal' ? 'border-cyan-500' : 'border-slate-800'}">
+                            <div>
+                                <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl mb-4">
+                                    <i class="fa-solid fa-bolt"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-white">Normal Operation</h3>
+                                <p class="text-xs text-slate-400 mt-1 mb-6">Restores default user schedules and standard appliance configurations.</p>
+                            </div>
+                            <button onclick="applySmartMode('Normal')" class="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-dark-950 font-bold text-xs rounded-xl shadow-lg transition-all">Restore Normal Mode</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCopilotView() {
+            return `
+                <div class="space-y-6 max-w-4xl mx-auto">
+                    <div class="glass-card p-6 lg:p-8 rounded-3xl shadow-xl border border-pink-500/30">
+                        <div class="flex items-center space-x-4 mb-6">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500 to-purple-500 text-white flex items-center justify-center text-xl shadow-lg">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-extrabold text-white">EcoPulse Energy Copilot AI</h2>
+                                <p class="text-xs text-slate-400">Ask any question about your electricity bills, switch boxes, or high consumption appliances.</p>
+                            </div>
+                        </div>
+
+                        <div id="chat-box" class="space-y-4 mb-6 max-h-96 overflow-y-auto custom-scrollbar p-4 rounded-2xl bg-dark-900 border border-slate-800 text-xs">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-8 h-8 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-bold">AI</div>
+                                <div class="p-3.5 rounded-2xl bg-slate-800 text-slate-200 max-w-md leading-relaxed">
+                                    Hello! I am your AI Energy Assistant. I have analyzed your utility meter and switch boxes. How can I help you optimize your home energy today?
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-3">
+                            <input type="text" id="copilot-input" placeholder="e.g. Why is my bill high?" class="flex-1 bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-pink-500">
+                            <button onclick="sendCopilotMessage()" class="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-400 text-white font-bold rounded-2xl text-xs shadow-lg transition-all">Send</button>
+                        </div>
+
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <button onclick="quickAsk('Why is my bill high?')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-[11px] text-slate-300 border border-slate-800">Why is my bill high?</button>
+                            <button onclick="quickAsk('Which room consumes the most?')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-[11px] text-slate-300 border border-slate-800">Which room consumes the most?</button>
+                            <button onclick="quickAsk('What is causing the meter difference?')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-[11px] text-slate-300 border border-slate-800">Meter difference explanation</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSafetyView() {
+            return `
+                <div class="space-y-6 max-w-4xl mx-auto">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-white tracking-wide">Electrical Safety & Overload Protection</h2>
+                        <p class="text-xs text-slate-400">Switch box maximum load limits, temperature warnings, and anomaly alerts.</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        ${appState.switchBoxes.map(sb => {
+                            const sbDevices = appState.devices.filter(d => d.switchBoxId === sb.id);
+                            const sbKw = sbDevices.reduce((sum, d) => sum + (d.state === 'ON' ? d.ratedPowerKw : 0), 0).toFixed(2);
+                            const percent = Math.round((sbKw / sb.maxLoadKw) * 100);
+                            return `
+                                <div class="glass-card p-6 rounded-3xl space-y-3">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300">${sb.id}</span>
+                                            <h3 class="text-base font-bold text-white mt-1">${sb.name}</h3>
+                                        </div>
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold ${percent > 80 ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-300'}">${percent > 80 ? 'High Load' : 'Normal'}</span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-3 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
+                                        <div><span class="text-slate-400">Current Load:</span> <strong class="text-white">${sbKw} kW</strong></div>
+                                        <div><span class="text-slate-400">Max Limit:</span> <strong class="text-white">${sb.maxLoadKw} kW</strong></div>
+                                        <div><span class="text-slate-400">Box Temp:</span> <strong class="text-white">${sb.temperature}°C</strong></div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSustainabilityView() {
+            return `
+                <div class="space-y-6 max-w-4xl mx-auto">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-white tracking-wide">Sustainability & Reduction Goals</h2>
+                        <p class="text-xs text-slate-400">Track monthly kWh reduction targets and carbon emissions offset estimates.</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        ${appState.goals.map(goal => {
+                            const percent = Math.min(100, Math.round((goal.current / goal.target) * 100));
+                            return `
+                                <div class="glass-card p-6 rounded-3xl space-y-4">
+                                    <div class="flex justify-between items-center">
+                                        <h3 class="text-base font-bold text-white">${goal.title}</h3>
+                                        <span class="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300">Target: ${goal.target} ${goal.unit}</span>
+                                    </div>
+                                    <div class="w-full bg-slate-900 h-3 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                                        <div class="bg-gradient-to-r from-emerald-500 to-cyan-400 h-full rounded-full" style="width: ${percent}%"></div>
+                                    </div>
+                                    <div class="flex justify-between text-xs text-slate-400 font-semibold">
+                                        <span>Current: <strong class="text-white">${goal.current} ${goal.unit}</strong></span>
+                                        <span class="text-emerald-400">Progress: ${percent}%</span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderReportsView() {
+            return `
+                <div class="space-y-6 max-w-4xl mx-auto">
+                    <div class="glass-card p-8 rounded-3xl text-center space-y-4">
+                        <i class="fa-solid fa-file-arrow-down text-emerald-400 text-5xl mb-2"></i>
+                        <h2 class="text-2xl font-extrabold text-white">Download Energy Reports (CSV / PDF)</h2>
+                        <p class="text-xs text-slate-400 max-w-md mx-auto">Export complete utility meter reconciliation logs, switch box power telemetry, and appliance cost breakdowns.</p>
+                        <div class="flex justify-center space-x-4 pt-4">
+                            <button onclick="exportReportData('CSV')" class="px-6 py-3 bg-emerald-500 text-dark-950 font-bold rounded-2xl text-xs shadow-lg">Download CSV Report</button>
+                            <button onclick="exportReportData('PDF')" class="px-6 py-3 bg-slate-800 text-white font-bold rounded-2xl text-xs shadow-lg">Download PDF Summary</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openModal(htmlContent) {
+            const modal = document.getElementById('global-modal');
+            const content = document.getElementById('modal-content');
+            content.innerHTML = htmlContent;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('global-modal').classList.add('hidden');
+        }
+
+        function openAddRoomModal() {
+            openModal(`
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-extrabold text-white">Add New Room</h2>
+                        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <div class="space-y-4 text-xs">
+                        <div>
+                            <label class="block text-slate-400 mb-1 font-bold">Room Name</label>
+                            <input type="text" id="new-room-name" placeholder="e.g. Study Room" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1 font-bold">Room Type</label>
+                            <select id="new-room-type" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+                                <option value="Bedroom">Bedroom</option>
+                                <option value="Living Room">Living Room</option>
+                                <option value="Kitchen">Kitchen</option>
+                                <option value="Study">Study Room</option>
+                                <option value="Bathroom">Bathroom</option>
+                                <option value="Balcony">Balcony</option>
+                                <option value="Utility">Utility Room</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3 pt-4">
+                        <button onclick="confirmAddRoom()" class="flex-1 py-3 bg-emerald-500 text-dark-950 font-bold rounded-2xl text-xs">Create Room</button>
+                        <button onclick="closeModal()" class="px-6 py-3 bg-slate-800 text-slate-300 font-bold rounded-2xl text-xs">Cancel</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function confirmAddRoom() {
+            const name = document.getElementById('new-room-name').value.trim();
+            const type = document.getElementById('new-room-type').value;
+            if (!name) return showToast('Please enter a room name');
+            const id = 'room-' + Math.random().toString(36).substr(2, 6);
+            appState.rooms.push({ id, name, type, floor: 'Ground', area: '150 sq.ft', icon: 'fa-door-open', color: 'from-emerald-500 to-teal-500' });
+            closeModal();
+            renderCurrentView();
+            showToast(`Room "${name}" successfully created`);
+        }
+
+        function deleteRoom(roomId) {
+            appState.rooms = appState.rooms.filter(r => r.id !== roomId);
+            renderCurrentView();
+            showToast('Room deleted successfully');
+        }
+
+        function openAddSwitchBoxModal() {
+            openModal(`
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-extrabold text-white">Add Smart Switch Box</h2>
+                        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <div class="space-y-4 text-xs">
+                        <div>
+                            <label class="block text-slate-400 mb-1 font-bold">Switch Box Name</label>
+                            <input type="text" id="new-sb-name" placeholder="e.g. Living Room Main Panel" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1 font-bold">Assign Room</label>
+                            <select id="new-sb-room" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+                                ${appState.rooms.map(r => `<option value="${r.id}">${r.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1 font-bold">Max Load Limit (kW)</label>
+                            <input type="number" id="new-sb-load" value="4.0" step="0.5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1 font-bold">Number of Channels</label>
+                            <select id="new-sb-channels" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+                                <option value="2">2 Channels</option>
+                                <option value="4" selected>4 Channels</option>
+                                <option value="6">6 Channels</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3 pt-4">
+                        <button onclick="confirmAddSwitchBox()" class="flex-1 py-3 bg-emerald-500 text-dark-950 font-bold rounded-2xl text-xs">Create Switch Box</button>
+                        <button onclick="closeModal()" class="px-6 py-3 bg-slate-800 text-slate-300 font-bold rounded-2xl text-xs">Cancel</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function confirmAddSwitchBox() {
+            const name = document.getElementById('new-sb-name').value.trim();
+            const roomId = document.getElementById('new-sb-room').value;
+            const maxLoadKw = parseFloat(document.getElementById('new-sb-load').value);
+            const channelCount = parseInt(document.getElementById('new-sb-channels').value);
+            if (!name) return showToast('Please enter switch box name');
+
+            const id = 'SB-' + Math.random().toString(36).substr(2, 4).toUpperCase();
+            const channels = [];
+            for (let i = 1; i <= channelCount; i++) {
+                channels.push({ id: `CH-${id}-${i}`, name: `Channel ${i}`, deviceId: null });
+            }
+
+            appState.switchBoxes.push({ id, name, roomId, maxLoadKw, voltage: 230, phase: 'Single Phase', status: 'Online', temperature: 36, channels });
+            closeModal();
+            renderCurrentView();
+            showToast(`Switch Box "${name}" created with ${channelCount} channels`);
+        }
+
+        function deleteSwitchBox(sbId) {
+            appState.switchBoxes = appState.switchBoxes.filter(s => s.id !== sbId);
+            renderCurrentView();
+            showToast('Switch box deleted successfully');
+        }
+
+        function toggleDeviceState(deviceId) {
+            const dev = appState.devices.find(d => d.id === deviceId);
+            if (!dev) return;
+            if (dev.state === 'ON') dev.state = 'OFF';
+            else dev.state = 'ON';
+            renderCurrentView();
+            showToast(`${dev.name} turned ${dev.state}`);
+        }
+
+        function applySmartMode(modeName) {
+            appState.activeSmartMode = modeName;
+            document.getElementById('header-mode-select').value = modeName;
+            if (modeName === 'Eco') {
+                appState.devices.forEach(d => {
+                    if (d.category === 'Climate') { d.state = 'ON'; d.temp = 24; }
+                    if (d.category === 'Entertainment') d.state = 'STANDBY';
+                });
+                showToast('🌱 Eco Mode Activated: AC temperatures optimized & standby curtailed.');
+            } else if (modeName === 'Sleep') {
+                appState.devices.forEach(d => {
+                    if (d.roomId === 'room-living') d.state = 'OFF';
+                });
+                showToast('🌙 Sleep Mode Activated: Living room shut down, night curves applied.');
+            } else if (modeName === 'Away') {
+                appState.devices.forEach(d => {
+                    if (d.id !== 'dev-kit-ref') d.state = 'OFF';
+                });
+                showToast('🚪 Away Mode Activated: Non-essential switch boxes disabled.');
+            } else {
+                appState.devices.forEach(d => { d.state = 'ON'; });
+                showToast('⚡ Normal Operation Restored.');
+            }
+            renderCurrentView();
+        }
+
+        function runDemoScenario(scenarioName) {
+            if (scenarioName === 'SummerEvening') {
+                appState.devices.forEach(d => { d.state = 'ON'; });
+                appState.utilityMeter.totalConsumedCycleKwh = 192.4;
+                showToast('☀️ Summer Evening Scenario Simulated: All ACs, lights, and appliances active.');
+            }
+            renderCurrentView();
+        }
+
+        function sendCopilotMessage() {
+            const input = document.getElementById('copilot-input');
+            const query = input.value.trim();
+            if (!query) return;
+            appendChatMsg('User', query);
+            input.value = '';
+
+            setTimeout(() => {
+                let reply = "Based on your smart switch box telemetry, your current load is within expected parameters. Shifting heavy appliances to off-peak hours will reduce your monthly bill.";
+                if (query.toLowerCase().includes('bill')) reply = "Your estimated bill is ₹" + getComputedMetrics().estBill + ". The primary contributor is the AC units across Bedroom 1 and Living Room.";
+                if (query.toLowerCase().includes('room')) reply = "Living Room and Bedroom 1 are currently consuming the highest share of power due to active climate control.";
+                if (query.toLowerCase().includes('meter')) reply = "The utility meter reconciliation shows a 95.8% coverage rate with only 0.78 kWh unaccounted for.";
+                appendChatMsg('AI', reply);
+            }, 600);
+        }
+
+        function quickAsk(q) {
+            document.getElementById('copilot-input').value = q;
+            sendCopilotMessage();
+        }
+
+        function appendChatMsg(sender, text) {
+            const box = document.getElementById('chat-box');
+            box.innerHTML += `
+                <div class="flex items-start space-x-3 ${sender === 'User' ? 'justify-end' : ''}">
+                    ${sender === 'AI' ? '<div class="w-8 h-8 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-bold">AI</div>' : ''}
+                    <div class="p-3.5 rounded-2xl ${sender === 'User' ? 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/30' : 'bg-slate-800 text-slate-200'} max-w-md leading-relaxed">
+                        ${text}
+                    </div>
+                </div>
+            `;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = message;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
+        }
+
+        function openHouseBuilderModal() {
+            openModal(`
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-extrabold text-white">House Configuration Builder</h2>
+                        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <p class="text-xs text-slate-400">Select BHK template or customize rooms and switch boxes.</p>
+                    <div class="space-y-3 text-xs">
+                        <label class="block text-slate-300 font-bold">Select Template</label>
+                        <select id="modal-bhk-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+                            <option value="1BHK">1 BHK Studio Apartment</option>
+                            <option value="2BHK" selected>2 BHK Standard Villa</option>
+                            <option value="3BHK">3 BHK Executive House</option>
+                            <option value="4BHK">4 BHK Grand Residence</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-3 pt-4">
+                        <button onclick="applyHouseConfigFromModal()" class="flex-1 py-3 bg-emerald-500 text-dark-950 font-bold rounded-2xl text-xs">Apply Configuration</button>
+                        <button onclick="closeModal()" class="px-6 py-3 bg-slate-800 text-slate-300 font-bold rounded-2xl text-xs">Cancel</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function applyHouseConfigFromModal() {
+            const val = document.getElementById('modal-bhk-select').value;
+            appState.houseTemplate = val;
+            document.getElementById('house-template-select').value = val;
+            closeModal();
+            renderCurrentView();
+            showToast(`Applied ${val} house layout template`);
+        }
+
+        function openMeterUpdateModal() {
+            openModal(`
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-extrabold text-white">Update Utility Meter Reading</h2>
+                        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <div class="space-y-4 text-xs">
+                        <div>
+                            <label class="block text-slate-400 mb-1 font-bold">New Utility Reading (kWh)</label>
+                            <input type="number" id="new-meter-reading" value="${appState.utilityMeter.totalConsumedCycleKwh}" step="0.5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+                        </div>
+                    </div>
+                    <div class="flex space-x-3 pt-4">
+                        <button onclick="confirmMeterUpdate()" class="flex-1 py-3 bg-cyan-500 text-white font-bold rounded-2xl text-xs">Sync Utility Meter</button>
+                        <button onclick="closeModal()" class="px-6 py-3 bg-slate-800 text-slate-300 font-bold rounded-2xl text-xs">Cancel</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function confirmMeterUpdate() {
+            const val = parseFloat(document.getElementById('new-meter-reading').value);
+            if (isNaN(val)) return showToast('Please enter a valid reading');
+            appState.utilityMeter.totalConsumedCycleKwh = val;
+            closeModal();
+            renderCurrentView();
+            showToast('Utility power meter successfully synchronized');
+        }
+
+        function initCharts() {
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.borderColor = 'rgba(51, 65, 85, 0.4)';
+
+            const c1 = document.getElementById('dashboardPowerChart');
+            if (c1) {
+                new Chart(c1.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
+                        datasets: [{
+                            label: 'House Power (kW)',
+                            data: [1.4, 1.1, 1.6, 3.8, 4.2, 3.9, 4.4, 3.2],
+                            borderColor: '#38bdf8',
+                            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 3
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                });
+            }
+
+            const cDaily = document.getElementById('analyticsDailyChart');
+            if (cDaily) {
+                new Chart(cDaily.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{ label: 'kWh', data: [15.2, 17.8, 16.4, 19.2, 18.5, 21.0, 18.6], backgroundColor: '#10b981', borderRadius: 8 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                });
+            }
+
+            const cRoom = document.getElementById('analyticsRoomChart');
+            if (cRoom) {
+                new Chart(cRoom.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: appState.rooms.map(r => r.name),
+                        datasets: [{ data: [32, 28, 22, 10, 5, 3], backgroundColor: ['#10b981', '#38bdf8', '#f59e0b', '#818cf8', '#34d399', '#ec4899'], borderWidth: 0 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
+                });
+            }
+        }
+
+        setInterval(() => {
+            appState.devices.forEach(d => {
+                if (d.state === 'ON') {
+                    const delta = (Math.random() * 0.02 - 0.01);
+                    d.ratedPowerKw = Math.max(0.02, parseFloat((d.ratedPowerKw + delta).toFixed(2)));
+                }
+            });
+            const textEl = document.getElementById('live-pulse-text');
+            if (textEl) {
+                textEl.innerText = `Live • Updated ${Math.floor(Math.random() * 4) + 1} seconds ago`;
+            }
+        }, 4000);
+
+        // Window Startup Hook
+        window.onload = function() {
+            renderCurrentView();
+        };
+    </script>
+</body>
+</html>
